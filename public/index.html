@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heroku Test</title>
+</head>
+<body>
+    <h1>Exception Test</h1>
+    <button id="throwException">Throw Unhandled Exception</button>
+    <button id="throwRejection">Throw Unhandled Rejection</button>
+    <button id="handleException">Throw Handled Exception</button>
+
+    <script>
+        function sendErrorToServer(message, errorType) {
+            fetch('/log-error', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message, errorType }),
+            })
+            .then(response => response.text())
+            .then(data => console.log(data))
+            .catch(error => console.error('Error logging to server:', error));
+        }
+
+
+        // Unhandled exception
+        document.getElementById('throwException').addEventListener('click', function() {
+            const message = "This is an unhandled exception";
+            sendErrorToServer(message, 'unhandledException');
+            throw new Error(message);
+        });
+
+        // Unhandled rejection
+        document.getElementById('throwRejection').addEventListener('click', function() {
+            const message = "This is an unhandled rejection";
+            sendErrorToServer(message, 'unhandledRejection');
+            Promise.reject(message);
+        });
+
+        // Handled exception
+        document.getElementById('handleException').addEventListener('click', function() {
+            try {
+                const message = "This is a handled exception";
+                throw new Error(message);
+            } catch (error) {
+                console.error("Handled exception caught:", error);
+                sendErrorToServer(error.message, 'handledException');
+            }
+        });
+    </script>
+</body>
+</html>
