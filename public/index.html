@@ -13,14 +13,19 @@
 
     <script>
         function sendErrorToServer(message, errorType) {
-            fetch('/log-error', {
+            fetch('/api/log-error', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ message, errorType }),
             })
-            .then(response => response.text())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.text();
+            })
             .then(data => console.log(data))
             .catch(error => console.error('Error logging to server:', error));
         }
